@@ -1,7 +1,17 @@
+export interface ChatMessage {
+  id: string
+  role: 'user' | 'assistant'
+  content: string
+  timestamp?: string
+}
+
 const API_URL =
   import.meta.env.VITE_CHATBOT_API_URL || '/api/chat'
 
-export async function sendChatMessage(message: string) {
+export async function sendChatMessage(
+  message: string,
+  history: ChatMessage[] = []
+): Promise<string> {
   try {
     const response = await fetch(API_URL, {
       method: 'POST',
@@ -10,6 +20,7 @@ export async function sendChatMessage(message: string) {
       },
       body: JSON.stringify({
         message,
+        history,
       }),
     })
 
@@ -19,10 +30,17 @@ export async function sendChatMessage(message: string) {
 
     const data = await response.json()
 
-    return data.reply || data.message || 'I could not generate a response.'
+    return (
+      data.reply ||
+      data.message ||
+      data.response ||
+      'I could not generate a response.'
+    )
   } catch (error) {
-    console.error('Chatbot API error:', error)
+    console.error('VGenNext AI API error:', error)
 
-    return 'I am currently unable to connect to the VGenNext AI service. Please try again shortly.'
+    return `I'm currently unable to connect to the VGenNext AI service.
+
+You can still explore our services or contact the VGenNext team for assistance.`
   }
 }
