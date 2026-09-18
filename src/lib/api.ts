@@ -44,3 +44,39 @@ export async function sendChatMessage(
 You can still explore our services or contact the VGenNext team for assistance.`
   }
 }
+
+// ======================================================
+// VGenNext Enquiry API
+// ======================================================
+
+export const VGENNEXT_ENQUIRY_API =
+  "https://script.google.com/macros/s/AKfycby4NnEjqORZ0UjTdYEttc7IrId9uf1_Nk17yUaQPk09KhGlNpDRNd06eqJtKOGaeaRKIw/exec";
+
+export interface EnquiryData {
+  fullName: string;
+  email: string;
+  phone: string;
+  company: string;
+  service: string;
+  message: string;
+}
+
+export async function submitEnquiry(
+  data: EnquiryData
+): Promise<void> {
+  const formData = new URLSearchParams();
+
+  formData.append("fullName", data.fullName);
+  formData.append("email", data.email);
+  formData.append("phone", data.phone);
+  formData.append("company", data.company);
+  formData.append("service", data.service);
+  formData.append("message", data.message);
+
+  await fetch(VGENNEXT_ENQUIRY_API, {
+    method: "POST",
+    mode: "no-cors",
+    body: formData,
+  });
+}
+
