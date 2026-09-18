@@ -1,67 +1,266 @@
-import { useEffect, useRef, useState } from 'react'
-import { Bot, Send, X, Sparkles } from 'lucide-react'
-import { sendChatMessage, type ChatMessage } from '../../lib/api'
-import ChatMessageView from './ChatMessage'
+import { useState } from 'react'
+import {
+  Bot,
+  Loader2,
+  Send,
+  Sparkles,
+  X,
+} from 'lucide-react'
 
-const starters = ['Find technology talent', 'Build an application', 'Explore AI solutions', 'Build an AI agent', 'Talk to a human']
+import {
+  sendChatMessage,
+} from '../../lib/api'
 
-export default function ChatbotWindow({ onClose }: { onClose: () => void }) {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    { id: 'welcome', role: 'assistant', content: "Hi! I'm VGenNext AI. I can help you explore our services, understand your requirement, or connect you with our team. What are you looking to build?" },
-  ])
+import type {
+  ChatMessage,
+} from '../../lib/api'
+
+import ChatMessageComponent from './ChatMessage'
+
+interface Props {
+  onClose: () => void
+}
+
+const initialMessage: ChatMessage = {
+  id: 'welcome',
+  role: 'assistant',
+  content:
+    "Hi! I'm VGenNext AI. I can help you explore our technology, staffing, application development, AI development, and Agentic AI services. How can I help you today?",
+  timestamp: 'Now',
+}
+
+export default function ChatbotWindow({
+  onClose,
+}: Props) {
+  const [messages, setMessages] = useState<
+    ChatMessage[]
+  >([initialMessage])
+
   const [input, setInput] = useState('')
+
   const [loading, setLoading] = useState(false)
-  const endRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => endRef.current?.scrollIntoView({ behavior: 'smooth' }), [messages, loading])
+  const quickActions = [
+    'Find Technology Talent',
+    'Build an Application',
+    'Explore AI Solutions',
+    'Build an AI Agent',
+    'Talk to a Human',
+  ]
 
-  async function submit(value = input) {
-    const message = value.trim()
-    if (!message || loading) return
-    const userMessage: ChatMessage = { id: crypto.randomUUID(), role: 'user', content: message }
-    const next = [...messages, userMessage]
-    setMessages(next)
+  async function handleSend(
+    customMessage?: string
+  ) {
+    const messageText =
+      customMessage ?? input
+
+    const trimmedMessage =
+      messageText.trim()
+
+    if (!trimmedMessage || loading) {
+      return
+    }
+
+    const userMessage: ChatMessage = {
+      id: `${Date.now()}-user`,
+      role: 'user',
+      content: trimmedMessage,
+      timestamp: 'Now',
+    }
+
+    const updatedMessages = [
+      ...messages,
+      userMessage,
+    ]
+
+    setMessages(updatedMessages)
     setInput('')
     setLoading(true)
+
     try {
-      const reply = await sendChatMessage(message, next)
-      setMessages([...next, { id: crypto.randomUUID(), role: 'assistant', content: reply }])
-    } catch {
-      setMessages([...next, { id: crypto.randomUUID(), role: 'assistant', content: 'I’m having trouble connecting right now. Please use the Contact page and our team can help you directly.' }])
+      const reply = await sendChatMessage(
+        trimmedMessage,
+        updatedMessages
+      )
+
+      const assistantMessage: ChatMessage = {
+        id: `${Date.now()}-assistant`,
+        role: 'assistant',
+        content: reply,
+        timestamp: 'Now',
+      }
+
+      setMessages((current) => [
+        ...current,
+        assistantMessage,
+      ])
+    } catch (error) {
+      console.error(
+        'Chatbot error:',
+        error
+      )
+
+      const errorMessage: ChatMessage = {
+        id: `${Date.now()}-error`,
+        role: 'assistant',
+        content:
+          'Something went wrong while connecting to VGenNext AI. Please try again.',
+        timestamp: 'Now',
+      }
+
+      setMessages((current) => [
+        ...current,
+        errorMessage,
+      ])
     } finally {
       setLoading(false)
     }
   }
 
+  function handleSubmit(
+    event: React.FormEvent<HTMLFormElement>
+  ) {
+    event.preventDefault()
+    void handleSend()
+  }
+
   return (
-    <div className="glass fixed bottom-5 right-5 z-[80] flex h-[min(680px,calc(100vh-110px))] w-[min(390px,calc(100vw-2rem))] flex-col overflow-hidden rounded-3xl shadow-2xl shadow-black/50">
-      <div className="flex items-center justify-between border-b border-white/10 bg-white/[0.03] px-5 py-4">
+    <div className="fixed bottom-24 right-5 z-50 w-[calc(100vw-2.5rem)] max-w-[390px] overflow-hidden rounded-3xl border border-blue-400/20 bg-[#06101d] shadow-2xl shadow-black/50">
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-white/10 bg-gradient-to-r from-blue-600/20 via-indigo-600/10 to-purple-600/20 px-5 py-4">
         <div className="flex items-center gap-3">
-          <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600">
-            <Bot size={20} />
-            <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-[#09101d] bg-emerald-400" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-blue-400/30 bg-blue-500/10">
+            <Bot
+              size={20}
+              className="text-blue-400"
+            />
           </div>
-          <div><p className="text-sm font-semibold">VGenNext AI</p><p className="text-[11px] text-emerald-400">Online · AI Assistant</p></div>
+
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-white">
+                VGenNext AI
+              </h3>
+
+              <span className="flex items-center gap-1 text-[10px] text-emerald-400">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                Online
+              </span>
+            </div>
+
+            <p className="text-xs text-slate-500">
+              Technology. Talent. Intelligence.
+            </p>
+          </div>
         </div>
-        <button onClick={onClose} className="rounded-full p-2 text-slate-500 hover:bg-white/5 hover:text-white"><X size={18} /></button>
+
+        <button
+          type="button"
+          onClick={onClose}
+          className="rounded-lg p-2 text-slate-400 transition hover:bg-white/5 hover:text-white"
+          aria-label="Close chatbot"
+        >
+          <X size={18} />
+        </button>
       </div>
 
-      <div className="chat-scroll flex-1 space-y-3 overflow-y-auto p-4">
-        <div className="flex items-center gap-2 rounded-xl border border-blue-400/10 bg-blue-500/[0.05] p-3 text-xs text-slate-400"><Sparkles size={15} className="text-blue-400" />Tell me what you need and I’ll guide you.</div>
-        {messages.map(message => <ChatMessageView key={message.id} message={message} />)}
-        {loading && <div className="w-fit rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-xs text-slate-500">Thinking…</div>}
-        <div ref={endRef} />
+      {/* Messages */}
+      <div className="h-[390px] space-y-4 overflow-y-auto p-4">
+        {messages.map((message) => (
+          <ChatMessageComponent
+            key={message.id}
+            message={message}
+          />
+        ))}
+
+        {loading && (
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full border border-blue-400/30 bg-blue-500/10">
+              <Bot
+                size={16}
+                className="text-blue-400"
+              />
+            </div>
+
+            <div className="rounded-2xl rounded-bl-md border border-white/10 bg-slate-900/80 px-4 py-3">
+              <div className="flex items-center gap-2 text-xs text-slate-400">
+                <Loader2
+                  size={14}
+                  className="animate-spin"
+                />
+                VGenNext AI is thinking...
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
-      <div className="border-t border-white/10 p-3">
-        <div className="mb-3 flex gap-2 overflow-x-auto no-scrollbar">
-          {starters.map(item => <button key={item} onClick={() => submit(item)} className="whitespace-nowrap rounded-full border border-white/10 bg-white/[0.03] px-3 py-2 text-[11px] text-slate-300 hover:border-blue-400/30 hover:text-white">{item}</button>)}
+      {/* Quick Actions */}
+      <div className="border-t border-white/10 px-4 py-3">
+        <div className="mb-3 flex items-center gap-2">
+          <Sparkles
+            size={13}
+            className="text-blue-400"
+          />
+
+          <span className="text-[10px] uppercase tracking-[0.18em] text-slate-500">
+            Quick actions
+          </span>
         </div>
-        <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-black/20 p-2">
-          <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && submit()} placeholder="Type your message..." className="min-w-0 flex-1 bg-transparent px-2 text-sm text-white outline-none placeholder:text-slate-600" />
-          <button onClick={() => submit()} disabled={!input.trim() || loading} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-600 disabled:cursor-not-allowed disabled:opacity-40"><Send size={16} /></button>
+
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          {quickActions.map((action) => (
+            <button
+              key={action}
+              type="button"
+              disabled={loading}
+              onClick={() =>
+                void handleSend(action)
+              }
+              className="shrink-0 rounded-full border border-blue-400/20 bg-blue-500/5 px-3 py-2 text-[11px] text-slate-300 transition hover:border-blue-400/40 hover:bg-blue-500/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {action}
+            </button>
+          ))}
         </div>
       </div>
+
+      {/* Input */}
+      <form
+        onSubmit={handleSubmit}
+        className="border-t border-white/10 p-4"
+      >
+        <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-black/20 p-2 focus-within:border-blue-400/30">
+          <input
+            value={input}
+            onChange={(event) =>
+              setInput(event.target.value)
+            }
+            disabled={loading}
+            placeholder="Type your message..."
+            className="min-w-0 flex-1 bg-transparent px-2 py-2 text-sm text-white outline-none placeholder:text-slate-600 disabled:opacity-50"
+          />
+
+          <button
+            type="submit"
+            disabled={
+              loading ||
+              !input.trim()
+            }
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-blue-500 to-violet-500 text-white transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40"
+            aria-label="Send message"
+          >
+            {loading ? (
+              <Loader2
+                size={16}
+                className="animate-spin"
+              />
+            ) : (
+              <Send size={16} />
+            )}
+          </button>
+        </div>
+      </form>
     </div>
   )
 }
