@@ -98,3 +98,146 @@ button, a { -webkit-tap-highlight-color: transparent; }
   50% { transform: scale(1.08); opacity: .08; }
 }
 .pulse-ring { animation: pulse-ring 2.5s ease-in-out infinite; }
+
+/* =========================================================
+   VGenNext - Global CTA Button Styles
+   ========================================================= */
+
+.vgennext-primary-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+
+  min-height: 56px !important;
+  padding: 0.95rem 1.75rem !important;
+
+  border: 1px solid rgba(96, 165, 250, 0.25) !important;
+  border-radius: 9999px !important;
+
+  background: linear-gradient(
+    90deg,
+    #2563eb 0%,
+    #7c3aed 100%
+  ) !important;
+
+  color: #ffffff !important;
+
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+
+  text-decoration: none !important;
+  white-space: nowrap !important;
+
+  box-shadow:
+    0 10px 30px rgba(37, 99, 235, 0.22) !important;
+
+  cursor: pointer !important;
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    opacity 0.3s ease !important;
+}
+
+.vgennext-primary-btn:hover {
+  transform: translateY(-2px) !important;
+
+  box-shadow:
+    0 15px 40px rgba(37, 99, 235, 0.35) !important;
+}
+
+.vgennext-primary-btn:active {
+  transform: translateY(0) !important;
+}
+
+
+/* =========================================================
+   VGenNext - Secondary CTA
+   ========================================================= */
+
+.vgennext-secondary-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+
+  min-height: 56px !important;
+  padding: 0.95rem 1.75rem !important;
+
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 9999px !important;
+
+  background: transparent !important;
+
+  color: #ffffff !important;
+
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+
+  text-decoration: none !important;
+  white-space: nowrap !important;
+
+  cursor: pointer !important;
+
+  transition:
+    transform 0.3s ease,
+    background 0.3s ease,
+    border-color 0.3s ease !important;
+}
+
+.vgennext-secondary-btn:hover {
+  transform: translateY(-2px) !important;
+
+  background: rgba(37, 99, 235, 0.1) !important;
+
+  border-color: rgba(96, 165, 250, 0.5) !important;
+}
+
+
+/* =========================================================
+   VGenNext - Ghost CTA
+   ========================================================= */
+
+.vgennext-ghost-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+
+  background: transparent !important;
+
+  color: #60a5fa !important;
+
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+
+  text-decoration: none !important;
+
+  cursor: pointer !important;
+
+  transition:
+    color 0.3s ease,
+    transform 0.3s ease !important;
+}
+
+.vgennext-ghost-btn:hover {
+  color: #93c5fd !important;
+  transform: translateX(2px) !important;
+}
+
+
+/* =========================================================
+   VGenNext - Mobile Buttons
+   ========================================================= */
+
+@media (max-width: 640px) {
+  .vgennext-primary-btn,
+  .vgennext-secondary-btn {
+    min-height: 52px !important;
+    padding: 0.85rem 1.4rem !important;
+    font-size: 0.8125rem !important;
+  }
+}
+
