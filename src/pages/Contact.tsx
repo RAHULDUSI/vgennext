@@ -6,39 +6,45 @@ const API_URL =
 
 export default function Contact() {
   const [submitted, setSubmitted] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    setSubmitting(true)
+    setLoading(true)
     setError('')
 
     const form = e.currentTarget
     const formData = new FormData(form)
 
+    const data = new URLSearchParams()
+
+    data.append('name', String(formData.get('name') || ''))
+    data.append('email', String(formData.get('email') || ''))
+    data.append('company', String(formData.get('company') || ''))
+    data.append('phone', String(formData.get('phone') || ''))
+    data.append('service', String(formData.get('service') || ''))
+    data.append('message', String(formData.get('message') || ''))
+
     try {
       await fetch(API_URL, {
         method: 'POST',
-        body: new URLSearchParams(
-          Array.from(formData.entries()).map(([key, value]) => [
-            key,
-            String(value),
-          ])
-        ),
         mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: data.toString(),
       })
 
+      // Apps Script receives the request successfully.
       setSubmitted(true)
       form.reset()
     } catch (err) {
       console.error(err)
-      setError(
-        'We could not submit your enquiry. Please try again.'
-      )
+      setError('Something went wrong. Please try again.')
     } finally {
-      setSubmitting(false)
+      setLoading(false)
     }
   }
 
@@ -64,7 +70,7 @@ export default function Contact() {
         </div>
       </section>
 
-      {/* Contact Section */}
+      {/* Contact */}
       <section className="py-20">
         <div className="container-x grid gap-8 lg:grid-cols-[.7fr_1.3fr]">
 
@@ -121,20 +127,21 @@ export default function Contact() {
 
             {submitted ? (
 
+              /* SUCCESS */
               <div className="flex min-h-[420px] flex-col items-center justify-center text-center">
 
                 <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400">
-                  <CheckCircle size={34} />
+                  <CheckCircle size={42} />
                 </div>
 
-                <h2 className="mt-6 text-3xl font-bold">
+                <h2 className="mt-6 text-2xl font-bold">
                   Thank you.
                 </h2>
 
-                <p className="mt-3 max-w-md text-base leading-7 text-slate-400">
+                <p className="mt-2 max-w-md text-sm leading-6 text-slate-400">
                   Your enquiry has been successfully submitted.
-                  Our team will review your request and get back
-                  to you soon.
+                  Our team will review your request and get back to
+                  you soon.
                 </p>
 
                 <button
@@ -143,7 +150,7 @@ export default function Contact() {
                     setSubmitted(false)
                     setError('')
                   }}
-                  className="mt-8 rounded-full border border-white/10 px-7 py-3.5 text-sm font-medium text-white transition hover:border-blue-400/40 hover:bg-blue-500/5"
+                  className="mt-8 rounded-full border border-white/10 px-7 py-3 text-sm font-medium text-white transition hover:bg-white/5"
                 >
                   Submit another enquiry
                 </button>
@@ -179,11 +186,13 @@ export default function Contact() {
                   <Input
                     label="Company"
                     name="company"
+                    required
                   />
 
                   <Input
                     label="Phone"
                     name="phone"
+                    required
                   />
 
                 </div>
@@ -194,13 +203,27 @@ export default function Contact() {
                   <select
                     name="service"
                     required
-                    className="mt-2 w-full rounded-xl border border-white/10 bg-[#080d17] px-4 py-3 text-sm text-white outline-none focus:border-blue-400/40"
+                    className="mt-2 w-full rounded-xl border border-white/10 bg-[#080d17] px-4 py-3 text-sm text-white outline-none"
                   >
-                    <option>Staffing & Talent Solutions</option>
-                    <option>Application Development</option>
-                    <option>AI Development</option>
-                    <option>Agentic AI</option>
-                    <option>Not sure yet</option>
+                    <option value="Staffing & Talent Solutions">
+                      Staffing & Talent Solutions
+                    </option>
+
+                    <option value="Application Development">
+                      Application Development
+                    </option>
+
+                    <option value="AI Development">
+                      AI Development
+                    </option>
+
+                    <option value="Agentic AI">
+                      Agentic AI
+                    </option>
+
+                    <option value="Not sure yet">
+                      Not sure yet
+                    </option>
                   </select>
                 </label>
 
@@ -211,7 +234,7 @@ export default function Contact() {
                     name="message"
                     rows={6}
                     required
-                    className="mt-2 w-full resize-none rounded-xl border border-white/10 bg-[#080d17] px-4 py-3 text-sm text-white outline-none placeholder:text-slate-600 focus:border-blue-400/40"
+                    className="mt-2 w-full resize-none rounded-xl border border-white/10 bg-[#080d17] px-4 py-3 text-sm text-white outline-none placeholder:text-slate-600"
                     placeholder="What are you trying to build, improve or automate?"
                   />
                 </label>
@@ -224,19 +247,21 @@ export default function Contact() {
 
                 <button
                   type="submit"
-                  disabled={submitting}
-                  className="mt-5 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3.5 text-sm font-semibold text-white transition hover:from-blue-500 hover:to-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
+                  disabled={loading}
+                  className="mt-5 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3.5 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {submitting ? 'Submitting...' : 'Submit Request'}
-
+                  {loading ? 'Submitting...' : 'Submit Request'}
                   <Send size={15} />
                 </button>
+
               </>
             )}
 
           </form>
+
         </div>
       </section>
+
     </main>
   )
 }
@@ -254,6 +279,7 @@ function Input({
 }) {
   return (
     <label className="block text-xs text-slate-400">
+
       {label}
 
       <input
@@ -262,6 +288,7 @@ function Input({
         required={required}
         className="mt-2 w-full rounded-xl border border-white/10 bg-[#080d17] px-4 py-3 text-sm text-white outline-none focus:border-blue-400/40"
       />
+
     </label>
   )
 }
